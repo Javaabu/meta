@@ -1,0 +1,96 @@
+{
+  "name": "javaabu/meta",
+  "description": "Meta fields for Eloquent models: define them once with javaabu/stencil, store them in typed, indexed columns, query them with whereMeta and orderByMeta, extend them with custom types, and translate them with javaabu/translatable.",
+  "homepage": "https://github.com/Javaabu/meta",
+  "license": "MIT",
+  "keywords": [
+    "javaabu",
+    "laravel",
+    "eloquent",
+    "meta",
+    "metadata",
+    "custom-fields",
+    "stencil",
+    "translatable",
+    "dhivehi"
+  ],
+  "authors": [
+    {
+      "name": "Javaabu Pvt. Ltd.",
+      "email": "info@javaabu.com",
+      "homepage": "https://javaabu.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^8.4",
+    "illuminate/contracts": "^12.0 || ^13.0",
+    "illuminate/database": "^12.0 || ^13.0",
+    "illuminate/support": "^12.0 || ^13.0",
+    "illuminate/validation": "^12.0 || ^13.0",
+    "javaabu/stencil": "^1.0@dev"
+  },
+  "require-dev": {
+    "javaabu/boost-javaabu-guidelines": "^1.4",
+    "javaabu/translatable": "^3.0@dev",
+    "laravel/pint": "^1.24",
+    "orchestra/testbench": "^10.0 || ^11.0",
+    "phpunit/phpunit": "^11.5.3 || ^12.5.8"
+  },
+  "suggest": {
+    "javaabu/translatable": "Translate meta values per language (^3.0)"
+  },
+  "autoload": {
+    "psr-4": {
+      "Javaabu\\Meta\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Javaabu\\Meta\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit",
+    "test-coverage": "vendor/bin/phpunit --coverage-clover=clover.xml",
+    "lint": "vendor/bin/pint --test",
+    "format": "vendor/bin/pint",
+    "benchmark": "php benchmarks/storage.php"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-main": "1.x-dev"
+    },
+    "laravel": {
+      "providers": [
+        "Javaabu\\Meta\\MetaServiceProvider"
+      ],
+      "aliases": {
+        "MetaFields": "Javaabu\\Meta\\Facades\\MetaFields"
+      }
+    }
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/Javaabu/forms"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/Javaabu/manifest"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/Javaabu/stencil"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/n4ff4h/translatable"
+    }
+  ],
+  "config": {
+    "sort-packages": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
