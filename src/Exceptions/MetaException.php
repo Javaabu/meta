@@ -58,4 +58,9 @@ class MetaException extends RuntimeException
     {
         return new static("Meta [{$key}] isn't defined, so its column is unknown. Define it, or pass its type: orderByMeta('{$key}', 'desc', 'integer').");
     }
+
+    public static function formWithoutRecord(): static
+    {
+        return new static('A meta form needs a record: MetaForm::for($post).');
+    }
 }

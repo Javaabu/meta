@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Facade;
 use Javaabu\Meta\Definitions\MetaField;
+use Javaabu\Meta\Forms\MetaForm;
 use Javaabu\Meta\MetaFields as MetaFieldsRegistry;
 use Javaabu\Meta\Types\MetaType;
 use Javaabu\Stencil\Fields\Field;
@@ -18,6 +19,7 @@ use Javaabu\Stencil\Fields\Field;
  * @method static array<int, string> keys(Model|string $model, ?string $group = null)
  * @method static array<int, string> groups(string $model)
  * @method static MetaField|null queryField(string $model, string $key)
+ * @method static MetaForm form(Model $record, ?string $group = null)
  * @method static MetaFieldsRegistry type(MetaType|string $type)
  * @method static MetaType getType(string $name)
  * @method static bool hasType(string $name)

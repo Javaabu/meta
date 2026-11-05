@@ -6,6 +6,9 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Javaabu\Meta\Definitions\MetaField;
 use Javaabu\Meta\Exceptions\MetaException;
+use Javaabu\Meta\Forms\MetaForm;
+use Javaabu\Meta\Support\Translatable\TranslatableMetaRecord;
+use Javaabu\Meta\Support\Translations;
 use Javaabu\Meta\Types\BooleanType;
 use Javaabu\Meta\Types\DateTimeType;
 use Javaabu\Meta\Types\DateType;
@@ -19,6 +22,7 @@ use Javaabu\Meta\Types\TimeType;
 use Javaabu\Stencil\Contracts\SavesRelationships;
 use Javaabu\Stencil\Fields\Field;
 use Javaabu\Stencil\Fields\FileUpload;
+use Javaabu\Stencil\Form;
 use WeakMap;
 
 /**
@@ -248,6 +252,10 @@ class MetaFields
         // Fields are stateful in a form, so every definition gets its own copy.
         $copy = clone $field;
 
+        if ($type->rules() !== []) {
+            $copy->rules($type->rules());
+        }
+
         return new MetaField($field->getName(), $type, $copy, $this->isDeclaredTranslatable($field), $group ?: null);
     }
 
@@ -272,15 +280,19 @@ class MetaFields
     }
 
     /**
-     * Whether ->translatable() was called on the field. Needs Javaabu/stencil#16.
+     * Whether ->translatable() was called on the field (and javaabu/translatable
+     * is enabled). Stencil decides that for a record that translates the key, so
+     * ask a copy of the field in a form bound to such a record.
      */
     protected function isDeclaredTranslatable(Field $field): bool
     {
-        if (! method_exists($field, 'isDeclaredTranslatable')) {
+        if (! Translations::enabled()) {
             return false;
         }
 
-        return (bool) $field->isDeclaredTranslatable();
+        $form = Form::make()->model(TranslatableMetaRecord::probe([$field->getName()]))->schema([clone $field]);
+
+        return $form->getField($field->getName())?->isTranslatable() ?? false;
     }
 
     /**
@@ -291,6 +303,14 @@ class MetaFields
     protected function classChain(string $model): array
     {
         return [...array_reverse(array_values(class_parents($model) ?: [])), $model];
+    }
+
+    /**
+     * The stencil form of a record's meta fields: MetaFields::form($post)->action(…).
+     */
+    public function form(Model $record, ?string $group = null): MetaForm
+    {
+        return MetaForm::for($record, $group);
     }
 
     /*

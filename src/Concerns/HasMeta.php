@@ -300,6 +300,30 @@ trait HasMeta
     }
 
     /**
+     * Save submitted meta, such as a meta form's validated data: only defined
+     * keys, and the per-locale inputs of translatable ones (subtitle_dv). Written
+     * straight away for a saved record, and when it's saved otherwise.
+     *
+     * @param  array<string, mixed>  $values
+     */
+    public function fillMeta(array $values): static
+    {
+        if (! $this->exists) {
+            $this->setMetaAttribute($values);
+
+            return $this;
+        }
+
+        $values = $this->fillableMeta($values);
+
+        if ($values !== []) {
+            $this->writeMeta($values);
+        }
+
+        return $this;
+    }
+
+    /**
      * Write the meta assigned before the record was saved. Called when it's saved.
      */
     public function savePendingMeta(): void

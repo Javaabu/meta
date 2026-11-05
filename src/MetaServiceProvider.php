@@ -24,6 +24,8 @@ class MetaServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadTranslationsFrom(__DIR__ . '/../lang', 'meta');
+
         $this->registerFieldMacros();
 
         if (! $this->app->runningInConsole()) {
@@ -63,5 +65,9 @@ class MetaServiceProvider extends ServiceProvider
         $this->publishesMigrations([
             __DIR__ . '/../database/migrations' => database_path('migrations'),
         ], 'meta-migrations');
+
+        $this->publishes([
+            __DIR__ . '/../lang' => lang_path('vendor/meta'),
+        ], 'meta-translations');
     }
 }

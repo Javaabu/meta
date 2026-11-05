@@ -68,6 +68,7 @@ class MetaCollection extends Collection
 
     /**
      * The values of a key by locale: ['en' => 'Malé', 'dv' => 'މާލެ'], with '' for the value without a locale.
+     * The default locale first, then the other active locales, then ''.
      *
      * @return array<string, mixed>
      */
@@ -80,6 +81,12 @@ class MetaCollection extends Collection
                 $values[$row->locale] = $row->getValue();
             }
         }
+
+        $order = array_flip([...Translations::locales(), '']);
+
+        uksort($values, function (string|int $a, string|int $b) use ($order) {
+            return [$order[$a] ?? PHP_INT_MAX - 1, (string) $a] <=> [$order[$b] ?? PHP_INT_MAX - 1, (string) $b];
+        });
 
         return $values;
     }
