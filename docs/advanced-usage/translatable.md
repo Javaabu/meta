@@ -53,6 +53,22 @@ In a [meta form](../basic-usage/forms.md), a translatable field has one input pe
 - **Saving:** the form saves each language that's submitted, and an empty input removes that language's value.
 - **Mass assignment:** `fill(['meta' => ...])` and `fillMeta()` take the same input names, or a locale map under the key.
 
+## In the record's own form
+
+[Nested in the record's own form](../basic-usage/forms.md#inside-the-records-own-form) (`MetaFields::nested($post)`), a translatable meta field gets inputs per language when the model implements stencil's `ResolvesTranslatableFields`. `HasMeta` provides `isTranslatableField()`:
+
+```php
+class Post extends Model implements ResolvesTranslatableFields
+{
+    use HasMeta;
+}
+```
+
+- **What it answers:** `meta.subtitle` from the definitions, through `MetaFields::isTranslatable($post, 'subtitle')`. The model's own fields (`title`) go to javaabu/translatable, so a translatable model keeps its own per-locale inputs.
+- **Names:** `meta[subtitle_en]` and `meta[subtitle_dv]`, with the state paths `meta.subtitle_en` and `meta.subtitle_dv`. Values are read from `$post->meta['subtitle_dv']`, and the validated `meta` array saves as in a meta form.
+- **The first language:** the required input is the record's primary locale for a translatable model (`primaryLocale()`), and the current locale otherwise. In a `MetaForm`, it's the default locale.
+- **A form class instead:** to keep the model as it is, implement `ResolvesTranslatableFields` on your form class and call `$this->getRecord()->isTranslatableField($state_path)`.
+
 # Querying
 
 - `whereMeta('subtitle', 'މާލެ')` matches a value in any locale.
@@ -67,5 +83,6 @@ In a [meta form](../basic-usage/forms.md), a translatable field has one input pe
 # How it works
 
 - **The one place translatable is checked:** `Javaabu\Meta\Support\Translations`. Nothing else in the package references translatable's classes.
+- **Which fields are translatable:** those declared `->translatable()` (stencil's `isDeclaredTranslatable()`) while translatable is enabled.
 - **What the form edits:** a meta form with translatable fields edits a `Javaabu\Meta\Support\Translatable\TranslatableMetaRecord` instead of an array. It's a JSON-translatable model that's never saved, holding the default language's values as attributes and the others in `translations`. That's what stencil and translatable expect, so per-locale inputs, rules and old input work as for any translatable model.
 - **When that class loads:** only when translatable is installed.

@@ -20,7 +20,7 @@ public function boot(): void
         TextInput::make('subtitle')->label(__('Subtitle'))->maxLength(255)->thaana(),
         Textarea::make('summary')->label(__('Summary'))->thaana(),
         Checkbox::make('featured')->label(__('Featured')),
-        TextInput::make('views')->label(__('Views'))->integer()->metaType('integer'),
+        TextInput::make('views')->label(__('Views'))->integer(),
         TextInput::make('rating')->label(__('Rating'))->numeric()->minValue(0)->maxValue(5),
         DatePicker::make('event_date')->label(__('Event date')),
         Select::make('tags')->label(__('Tags'))->multiple()->options([
@@ -46,7 +46,7 @@ Defining a field isn't required to store a value: `setMeta()` takes any key. But
 | `TextInput`, single `Select`, `Radio`, `Hidden` | `string` (255 characters at most) | `value_string`, indexed | `string` |
 | `Textarea`, `Wysiwyg` | `text` | `value_text` | `string` |
 | `TextInput::numeric()` | `float` | `value_float`, indexed | `float` |
-| `TextInput::integer()->metaType('integer')` | `integer` | `value_int`, indexed | `int` |
+| `TextInput::integer()` | `integer` | `value_int`, indexed | `int` |
 | `Checkbox` | `boolean` | `value_int` (1 or 0), indexed | `bool` |
 | `DatePicker` | `date` | `value_datetime` at midnight, indexed | `Carbon` |
 | `DateTimePicker` | `datetime` | `value_datetime`, indexed | `Carbon` |
@@ -56,13 +56,11 @@ Defining a field isn't required to store a value: `setMeta()` takes any key. But
 Choose a type yourself with `->metaType()`:
 
 ```php
-TextInput::make('views')->integer()->metaType('integer');
+TextInput::make('price')->integer()->metaType('float');
 TextInput::make('code')->metaType('text');
 ```
 
-:::note
-Integer inputs need `->metaType('integer')` for now. Stencil doesn't yet say whether a numeric input is an integer one (Javaabu/stencil#16), so `->integer()` alone is stored as a `float`. Once stencil adds it, `->integer()` is enough.
-:::
+`TextInput::make('views')->integer()` is stored as an `integer` on its own, and `->numeric()` as a `float`.
 
 Fields that save to a relationship (`Select::relationship()` for a `BelongsToMany`, or a file upload into a media collection) can't be meta fields. Defining one throws a `MetaException`.
 

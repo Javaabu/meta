@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Javaabu\Meta\Definitions\MetaField;
 use Javaabu\Meta\Exceptions\MetaException;
 use Javaabu\Meta\Forms\MetaForm;
-use Javaabu\Meta\Support\Translatable\TranslatableMetaRecord;
 use Javaabu\Meta\Support\Translations;
 use Javaabu\Meta\Types\BooleanType;
 use Javaabu\Meta\Types\DateTimeType;
@@ -19,10 +18,10 @@ use Javaabu\Meta\Types\MetaType;
 use Javaabu\Meta\Types\StringType;
 use Javaabu\Meta\Types\TextType;
 use Javaabu\Meta\Types\TimeType;
+use Javaabu\Stencil\Components\Group;
 use Javaabu\Stencil\Contracts\SavesRelationships;
 use Javaabu\Stencil\Fields\Field;
 use Javaabu\Stencil\Fields\FileUpload;
-use Javaabu\Stencil\Form;
 use WeakMap;
 
 /**
@@ -30,6 +29,11 @@ use WeakMap;
  */
 class MetaFields
 {
+    /**
+     * The key meta fields are nested under in a record's own form, and the attribute mass assignment takes.
+     */
+    public const string STATE_PATH = 'meta';
+
     /**
      * The types every install has, in the order they're asked to match a field or value (last first).
      *
@@ -60,13 +64,9 @@ class MetaFields
     /** @var WeakMap<Field, string> */
     protected WeakMap $field_types;
 
-    /** @var WeakMap<Field, bool> */
-    protected WeakMap $translatable_fields;
-
     public function __construct()
     {
         $this->field_types = new WeakMap;
-        $this->translatable_fields = new WeakMap;
 
         foreach (static::BUILT_IN_TYPES as $type) {
             $this->type($type);
@@ -284,23 +284,27 @@ class MetaFields
     }
 
     /**
-     * Whether ->translatable() was called on the field (and javaabu/translatable
-     * is enabled). Stencil decides that for a record that translates the key, so
-     * ask a copy of the field in a form bound to such a record.
+     * Whether ->translatable() was called on the field (and javaabu/translatable is enabled).
      */
     protected function isDeclaredTranslatable(Field $field): bool
     {
-        if (! Translations::enabled()) {
-            return false;
-        }
+        return Translations::enabled() && $field->isDeclaredTranslatable();
+    }
 
-        if (isset($this->translatable_fields[$field])) {
-            return $this->translatable_fields[$field];
-        }
+    /**
+     * Whether a key of a model (or of a record's group) has a value per locale:
+     * its field was declared ->translatable() and javaabu/translatable is enabled.
+     * For a model class without a group, the key's field in any group counts.
+     *
+     * @param  Model|class-string<Model>  $model
+     */
+    public function isTranslatable(Model|string $model, string $key, ?string $group = null): bool
+    {
+        $field = is_string($model) && $group === null
+            ? $this->queryField($model, $key)
+            : $this->field($model, $key, $group);
 
-        $form = Form::make()->model(TranslatableMetaRecord::probe([$field->getName()]))->schema([clone $field]);
-
-        return $this->translatable_fields[$field] = $form->getField($field->getName())?->isTranslatable() ?? false;
+        return $field?->translatable ?? false;
     }
 
     /**
@@ -319,6 +323,37 @@ class MetaFields
     public function form(Model $record, ?string $group = null): MetaForm
     {
         return MetaForm::for($record, $group);
+    }
+
+    /**
+     * The stencil fields of a model's meta (or of a record's group), new copies
+     * each call, ready to put in a form.
+     *
+     * @param  Model|class-string<Model>  $model
+     * @return array<int, Field>
+     */
+    public function formFields(Model|string $model, ?string $group = null): array
+    {
+        return array_values(array_map(fn (MetaField $field) => $field->field, $this->fields($model, $group)));
+    }
+
+    /**
+     * The meta fields nested under `meta`, to put in the record's own form:
+     * input names meta[subtitle], values from $record->meta, and validated data
+     * ['meta' => [...]], which fill(), create() and update() save.
+     *
+     * ```php
+     * Form::make()->model($post)->schema([
+     *     TextInput::make('title'),
+     *     MetaFields::nested($post),
+     * ]);
+     * ```
+     *
+     * @param  Model|class-string<Model>  $model
+     */
+    public function nested(Model|string $model, ?string $group = null): Group
+    {
+        return Group::make($this->formFields($model, $group))->statePath(static::STATE_PATH);
     }
 
     /*

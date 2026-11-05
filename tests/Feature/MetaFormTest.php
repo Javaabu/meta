@@ -151,7 +151,7 @@ class MetaFormTest extends TestCase
         $post = Post::create(['title' => 'ސުރުހީ']);
         $post->setMeta('subtitle', 'މާލެ');
 
-        $html = (string) MetaForm::for($post)->action('/posts/1/meta');
+        $html = MetaForm::for($post)->action('/posts/1/meta')->toHtml();
 
         $this->assertStringContainsString('name="subtitle"', $html);
         $this->assertStringContainsString('value="މާލެ"', $html);
@@ -166,7 +166,7 @@ class MetaFormTest extends TestCase
         app()->setLocale('dv');
 
         $form = MetaForm::for(new Post)->action('/posts/1/meta');
-        $html = (string) $form;
+        $html = $form->toHtml();
 
         $this->assertSame('ސޭވް ކުރައްވާ', $form->getSubmitLabel());
         $this->assertStringContainsString('ސޭވް ކުރައްވާ', $html);
@@ -195,7 +195,7 @@ class MetaFormTest extends TestCase
     #[Test]
     public function it_can_be_embedded_in_the_records_own_form(): void
     {
-        $html = (string) MetaForm::for(new Post)->embedded();
+        $html = MetaForm::for(new Post)->embedded()->toHtml();
 
         $this->assertStringNotContainsString('<form', $html);
         $this->assertStringContainsString('name="subtitle"', $html);

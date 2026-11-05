@@ -22,7 +22,7 @@ use Javaabu\Stencil\Fields\TextInput;
 MetaFields::for(Post::class, [
     TextInput::make('subtitle')->label(__('Subtitle'))->maxLength(255)->thaana(),
     Checkbox::make('featured')->label(__('Featured')),
-    TextInput::make('views')->integer()->metaType('integer'),
+    TextInput::make('views')->integer(),
     DatePicker::make('event_date')->label(__('Event date')),
 ]);
 ```

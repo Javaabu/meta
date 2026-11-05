@@ -115,6 +115,23 @@ trait HasMeta
         return $this->metaFields()[$key] ?? null;
     }
 
+    /**
+     * Which fields of a stencil form bound to this record are translatable, for
+     * a model that implements Javaabu\Stencil\Contracts\ResolvesTranslatableFields:
+     * meta fields nested under `meta` (MetaFields::nested()) by their definitions,
+     * the record's own fields by javaabu/translatable.
+     */
+    public function isTranslatableField(string $state_path): bool
+    {
+        $prefix = MetaFields::STATE_PATH . '.';
+
+        if (str_starts_with($state_path, $prefix)) {
+            return app(MetaFields::class)->isTranslatable($this, substr($state_path, strlen($prefix)));
+        }
+
+        return Translations::supports($this, $state_path);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Relation

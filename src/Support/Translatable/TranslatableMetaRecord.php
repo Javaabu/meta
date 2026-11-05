@@ -65,16 +65,6 @@ class TranslatableMetaRecord extends Model implements JsonTranslatable
     }
 
     /**
-     * A record that translates the keys, to ask a stencil field whether it's translatable.
-     *
-     * @param  array<int, string>  $keys
-     */
-    public static function probe(array $keys): static
-    {
-        return static::fromValues([], $keys);
-    }
-
-    /**
      * @return array<int, string>
      */
     public function getTranslatables(): array

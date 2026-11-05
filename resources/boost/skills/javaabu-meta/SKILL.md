@@ -66,7 +66,7 @@ class AppServiceProvider extends ServiceProvider
             TextInput::make('subtitle')->label(__('Subtitle'))->maxLength(255)->thaana(),
             Textarea::make('summary')->label(__('Summary'))->thaana(),
             Checkbox::make('featured')->label(__('Featured')),
-            TextInput::make('views')->label(__('Views'))->integer()->metaType('integer'),
+            TextInput::make('views')->label(__('Views'))->integer(),
             Select::make('tags')->label(__('Tags'))->multiple()->options([
                 'news' => __('News'),
                 'sports' => __('Sports'),
@@ -85,13 +85,13 @@ class AppServiceProvider extends ServiceProvider
 | `TextInput`, single `Select`, `Radio`, `Hidden` | `string` (max 255) | `string` |
 | `Textarea`, `Wysiwyg` | `text` | `string` |
 | `TextInput::numeric()` | `float` | `float` |
-| `->metaType('integer')` | `integer` | `int` |
+| `TextInput::integer()` | `integer` | `int` |
 | `Checkbox` | `boolean` | `bool` |
 | `DatePicker` / `DateTimePicker` | `date` / `datetime` | `Carbon` |
 | `TimePicker` | `time` | `'H:i:s'` |
 | multiple `Select`, `CheckboxList` | `json` | `array` |
 
-`'views' => 'integer'` defines a key by type only. Relationship and media fields can't be meta.
+`->metaType('float')` overrides the inferred type. `'views' => 'integer'` defines a key by type only. Relationship and media fields can't be meta.
 
 ## Reading and writing
 
@@ -125,7 +125,22 @@ $posts = Post::query()
     ->withQueryString();
 ```
 
-## A meta form
+## Meta fields in the record's own form
+
+Prefer this when the record has its own stencil form:
+
+```php
+use Javaabu\Meta\Facades\MetaFields;
+
+Form::make()->model($post)->schema([
+    TextInput::make('title')->label(__('Title'))->required(),
+    Section::make(__('Details'), [MetaFields::nested($post)]),   // Group with statePath('meta')
+]);
+```
+
+Inputs are `meta[subtitle]`, values come from `$post->meta`, rules are keyed `meta.subtitle`, and `validate()` returns `['meta' => [...]]`, which the form's `save()` (or `create()`/`update()`) writes when the post is saved. Conditions inside take full paths: `visibleWhen('meta.featured', true)`. For translatable meta fields, the model implements `Javaabu\Stencil\Contracts\ResolvesTranslatableFields` (`HasMeta` has the method), giving `meta[subtitle_en]`, `meta[subtitle_dv]`.
+
+## A meta form on its own page
 
 ```php
 <?php
@@ -160,7 +175,7 @@ class PostMetaController extends Controller
 }
 ```
 
-Blade: `{{ $form }}`. Inertia: pass `$form` as a prop and render `<StencilForm schema={form} />` from `@javaabu/stencil`. Inside the record's own form, pass `MetaForm::for($post)->embedded()` and render it there (`{{ $metaForm }}` / `<StencilFields schema={metaForm} />`). Validate it with `->validate($request)` and save it with `->save($data)` after the record.
+Blade: `{{ $form }}`. Inertia: pass `$form` as a prop and render `<StencilForm schema={form} />` from `@javaabu/stencil`. Inside a form you write yourself, pass `MetaForm::for($post)->embedded()` and render it there (`{{ $metaForm }}` / `<StencilFields schema={metaForm} />`). Validate it with `->validate($request)` and save it with `->save($data)` after the record.
 
 ## Common mistakes
 
@@ -171,9 +186,9 @@ Blade: `{{ $form }}`. Inertia: pass `$form` as a prop and render `<StencilForm s
 | `$post->setMeta(...); $post->save();` to persist | `setMeta()` already wrote it (save only matters for a new record) |
 | `foreach (Post::all() as $post) $post->getMeta(...)` | `Post::with('meta')->get()` or `withMeta([...])` first |
 | `->join('meta', …)->where('meta.key', …)` | `whereMeta()`, `orderByMeta()` |
-| `TextInput::make('views')->integer()` alone | Add `->metaType('integer')`, or it's stored as a float |
+| `(string) $form` | `$form->toHtml()` or `{{ $form }}`: stencil forms aren't `Stringable` |
 | `orderByMeta('position')` for an undefined key | Define it, or `orderByMeta('position', 'asc', 'integer')` |
 | `whereMeta('color', '!=', 'red')` to include records without a color | Add `->orWhereDoesntHaveMeta('color')` |
-| A meta key with the name of one of the record's inputs, in an embedded form | Use distinct keys |
+| A meta key with the name of one of the record's inputs, in an embedded `MetaForm` | Use `MetaFields::nested()`, or distinct keys |
 | Sort a large table by meta on every page | Make that key a real column; keep meta for the long tail |
 | Hard-coded labels | `__('Subtitle')`, and `->thaana()` for Dhivehi text |

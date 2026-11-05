@@ -14,8 +14,9 @@ namespace Javaabu\PostTypes\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Javaabu\Meta\Concerns\HasMeta;
+use Javaabu\Stencil\Contracts\ResolvesTranslatableFields;
 
-class Post extends Model
+class Post extends Model implements ResolvesTranslatableFields
 {
     use HasMeta;
 
@@ -25,6 +26,8 @@ class Post extends Model
     }
 }
 ```
+
+`ResolvesTranslatableFields` (implemented by `HasMeta::isTranslatableField()`) gives translatable meta fields one input per language in your own forms. It's only needed when you nest meta fields in the record's form.
 
 The meta table comes with meta's own migration, so your package adds none. If your model needs its own table, ship a migration that calls `MetaTable::columns()` and set `$meta_table`.
 
@@ -42,12 +45,24 @@ Read the definitions back with:
 - `MetaFields::fields(Post::class, 'event')`: one group's fields.
 - `MetaFields::groups(Post::class)`: every group of the model.
 - `MetaFields::queryField(Post::class, $key)`: the field queries use for a key.
+- `MetaFields::isTranslatable($post, $key)`: whether a key has a value per language.
 
 Each definition is a readonly `MetaField` with `key`, `type`, `field`, `translatable` and `group`. Its `field` is a fresh copy of the stencil field, so you can put it in your own forms. Definitions for a parent class apply to its subclasses, so a translatable subclass of your model shares them.
 
 # Forms
 
-`MetaForm::for($post)` is a stencil form of the record's meta fields. Render it on its own, or `->embedded()` inside your own form, with stencil's Blade or React driver. Validate it with `->validate($request)` and save it with `->save($data)`. See [Meta forms](../basic-usage/forms.md).
+Put the meta fields in your own stencil form for the record with `MetaFields::nested($post)`: a `Group` with `statePath('meta')`. The inputs are `meta[subtitle]`, the values come from `$post->meta`, and `validate()` returns them under `meta`, which `save()`, `create()` and `update()` write when the post is saved:
+
+```php
+Form::make()->model($post)->schema([
+    TextInput::make('title')->required(),
+    Section::make(__('Details'), [MetaFields::nested($post)]),
+]);
+```
+
+`MetaFields::formFields($post)` gives the bare field copies for a layout of your own. Conditions in definitions take full paths (`meta.featured`) when nested. See [Inside the record's own form](../basic-usage/forms.md#inside-the-records-own-form).
+
+`MetaForm::for($post)` is a stencil form of the record's meta fields alone. Render it on its own, or `->embedded()` inside a form you write yourself, with stencil's Blade or React driver. Validate it with `->validate($request)` and save it with `->save($data)`. See [Meta forms](../basic-usage/forms.md).
 
 # Queries
 

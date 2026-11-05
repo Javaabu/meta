@@ -28,15 +28,15 @@
 
 ## MetaFields facade
 
-`for($model, array|Closure $fields, ?$group = null)`, `forget(?$model, ?$group)`, `fields($model|$record, ?$group)`, `field($model, $key, ?$group)`, `keys(...)`, `groups($model)`, `queryField($model, $key)`, `form($record, ?$group)`, `type(MetaType|class)`, `getType($name)`, `hasType`, `types()`, `fieldType(Field)`, `typeForValue($value)`.
+`for($model, array|Closure $fields, ?$group = null)`, `forget(?$model, ?$group)`, `fields($model|$record, ?$group)`, `field($model, $key, ?$group)`, `keys(...)`, `groups($model)`, `queryField($model, $key)`, `isTranslatable($model|$record, $key, ?$group)`, `form($record, ?$group)`, `formFields($model|$record, ?$group)` (fresh stencil fields), `nested($model|$record, ?$group)` (a `Group` with `statePath('meta')`), `type(MetaType|class)`, `getType($name)`, `hasType`, `types()`, `fieldType(Field)`, `typeForValue($value)`.
 
-Stencil fields get `->metaType('integer')`.
+Stencil fields get `->metaType('float')` to override the inferred type. `HasMeta::isTranslatableField($state_path)` implements stencil's `ResolvesTranslatableFields` for models that declare it.
 
 `MetaField` (readonly): `key`, `type`, `field` (a fresh stencil copy), `translatable`, `group`.
 
 ## MetaForm (a stencil Form)
 
-`MetaForm::for($record, ?$group = null, ?$id = 'meta-form')`, `->action()`, `->method()`, `->embedded()`, `->rules()`, `->validate($request)`, `->save(?$data)` (returns the record), `->toArray()` (Inertia), `{{ $form }}` (Blade).
+`MetaForm::for($record, ?$group = null, ?$id = 'meta-form')`, `->action()`, `->method()`, `->embedded()`, `->rules()`, `->validate($request)`, `->save(?$data)` (returns the record), `->toArray()` (Inertia), `{{ $form }}` or `->toHtml()` (Blade).
 
 - Inputs are named after the keys. Translatable fields have one input per locale: `subtitle_en`, `subtitle_dv`.
 - Live fields aren't supported. Conditions are.

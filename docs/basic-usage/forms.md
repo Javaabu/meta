@@ -69,12 +69,69 @@ The `update` action is the same as for Blade. See stencil's [React docs](https:/
 
 # Inside the record's own form
 
-To edit a post and its meta on one page, embed the meta form in the post's own `<form>`. `->embedded()` renders the fields without a `<form>` or submit button:
+To edit a post and its meta on one page, put the meta fields in the post's own stencil form. `MetaFields::nested($post)` is a stencil `Group` of the record's meta fields (with its group's), nested under `meta` with stencil's `statePath()`:
+
+```php
+use Javaabu\Meta\Facades\MetaFields;
+use Javaabu\Stencil\Fields\TextInput;
+use Javaabu\Stencil\Form;
+
+class PostForm extends Form
+{
+    protected function definition(): array
+    {
+        return [
+            TextInput::make('title')->required(),
+            MetaFields::nested($this->getRecord() ?? new Post),
+        ];
+    }
+}
+```
+
+- **Names:** the inputs are named `meta[subtitle]` (state path `meta.subtitle`, id `meta-subtitle`), so they never clash with the post's own inputs.
+- **Values:** they're read from `$post->meta`, by key (`data_get($post, 'meta.subtitle')`).
+- **Validation:** the rules are keyed `meta.subtitle`, and `validate()` returns `['title' => …, 'meta' => ['subtitle' => …]]`.
+- **Saving:** stencil's `save()`, or `Post::create($data)` and `$post->update($data)`, pass `meta` to the model, which writes the defined keys when the post is saved. A new post gets its meta when it's created.
+- **Lay it out:** the group is an ordinary component, so put it in a section or a tab: `Section::make(__('Details'), [MetaFields::nested($post)])`. `MetaFields::formFields($post)` gives the fields without the group, for a layout of your own (then nest them with `statePath('meta')` yourself).
+
+```php
+public function update(Post $post)
+{
+    PostForm::make()->model($post)->save();   // validates, saves the post and its meta
+
+    return to_route('posts.show', $post);
+}
+```
+
+Fields of another group: `MetaFields::nested($post, group: 'event')`. With a model class instead of a record, only the model's own fields are given, unless you pass the group.
+
+:::note
+Stencil conditions take full state paths. In a field nested this way, `visibleWhen('meta.featured', true)` watches the `featured` meta field. In a `MetaForm`, the same field is `featured`. Give a definition the path for the form you put it in.
+:::
+
+## Translatable fields in the record's form
+
+Stencil gives a translatable meta field one input per language when the form's record says which fields are translatable. Implement stencil's `ResolvesTranslatableFields` on the model. `HasMeta` provides the method:
+
+```php
+use Javaabu\Meta\Concerns\HasMeta;
+use Javaabu\Stencil\Contracts\ResolvesTranslatableFields;
+
+class Post extends Model implements ResolvesTranslatableFields
+{
+    use HasMeta;
+}
+```
+
+`HasMeta::isTranslatableField()` answers for `meta.*` paths from the definitions, and for the model's own fields from javaabu/translatable, so a translatable model's own fields keep working. The inputs are named `meta[subtitle_en]` and `meta[subtitle_dv]`. See [Translatable meta](../advanced-usage/translatable.md#in-the-records-own-form).
+
+## Embedding a meta form
+
+You can also render a `MetaForm` without a `<form>` (`->embedded()`) inside a form you write yourself, such as a plain Blade form. Its inputs aren't nested (`subtitle`, `tags[]`), so a meta key must not be the name of one of the post's own inputs, and you validate and save it separately:
 
 ```php
 // edit(): pass the embedded meta form with the post
 return view('posts.edit', ['post' => $post, 'metaForm' => MetaForm::for($post)->embedded()]);
-// or Inertia::render('Posts/Edit', ['post' => $post, 'metaForm' => MetaForm::for($post)->embedded()])
 ```
 
 ```blade
@@ -114,8 +171,6 @@ public function update(PostRequest $request, Post $post)
     return to_route('posts.show', $post);
 }
 ```
-
-The meta inputs are named after their keys (`subtitle`, `tags[]`), so a meta key must not be the name of one of the post's own inputs.
 
 A new record works the same way. `MetaForm::for(new Post)` has no values, and the meta is saved when the post is:
 

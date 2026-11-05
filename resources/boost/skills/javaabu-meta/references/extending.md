@@ -81,7 +81,7 @@ $post->getMetaTranslations('subtitle');
 
 - **When it applies:** `->translatable()` is safe without the package. It only applies when translatable is enabled with active languages.
 - **Storage:** one row per locale. Values that aren't translatable use the locale `''`.
-- **Forms:** one input per locale (`subtitle_en`, `subtitle_dv`), in tabs or `layout: 'stacked'`. The default locale keeps the rules and the others become optional (`require_all: true` changes that). Mass assignment takes the same names.
+- **Forms:** one input per locale (`subtitle_en`, `subtitle_dv`), in tabs or `layout: 'stacked'`. The default locale keeps the rules and the others become optional (`require_all: true` changes that). Mass assignment takes the same names. Nested in the record's form (`MetaFields::nested()`), the model implements stencil's `ResolvesTranslatableFields` and the inputs are `meta[subtitle_en]`.
 - **Queries:** match in any locale and sort in the current locale.
 - **Turning it off:** `Javaabu\Meta\Support\Translations::$enabled = false` turns translatable meta off.
 

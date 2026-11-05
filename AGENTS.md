@@ -12,7 +12,7 @@
 | Path | What |
 | --- | --- |
 | `src/Concerns/HasMeta.php` | The trait: relation, reads, writes (upsert), pending meta, mass assignment, scopes |
-| `src/MetaFields.php` | The registry: definitions by model/group, type registration and inference, the translatable probe |
+| `src/MetaFields.php` | The registry: definitions by model/group, type registration and inference, `nested()` fields for the record's own form |
 | `src/Query/MetaQuery.php` | The SQL of the scopes: `id IN (subquery)` conditions, left-join sorts |
 | `src/Types/` | `MetaType` and the built-in types |
 | `src/Models/Meta.php`, `MetaCollection.php` | A row; the rows of a record, readable by key (`$post->meta['subtitle']`, `data_get`) |
@@ -34,7 +34,8 @@
 - **Translatable is optional:**
   - Only `Support\Translations` and `Support\Translatable\*` reference its classes, and the latter load only when it's enabled.
   - Tests that need it go in `tests/Translatable`. CI runs `Unit,Feature` without it.
-- **Stencil:** use only its public API. Requests for more go to Javaabu/stencil as `cross-package` issues (see Javaabu/stencil#16 for `isInteger()` and `statePath()`).
+- **Stencil:** use only its public API. Requests for more go to Javaabu/stencil as `cross-package` issues (Javaabu/stencil#16 added `isInteger()`, `isDeclaredTranslatable()`, `ResolvesTranslatableFields` and `statePath()`).
+- **Nested fields:** `MetaFields::STATE_PATH` (`meta`) is both the stencil state path and the mass-assignment attribute. Keep them the same.
 - **Every change** needs tests, docs (linked from `llms.txt`), the Boost skill if it changes usage, and a line in `CHANGELOG.md`.
 - **Dhivehi:** user-facing strings go in `lang/en` and `lang/dv`, and tests of user-facing behaviour use Thaana.
 

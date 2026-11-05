@@ -12,6 +12,7 @@ use Javaabu\Meta\Tests\TestCase;
 use Javaabu\Stencil\Fields\Checkbox;
 use Javaabu\Stencil\Fields\Textarea;
 use Javaabu\Stencil\Fields\TextInput;
+use Javaabu\Stencil\Form;
 use Javaabu\Translatable\Facades\Languages;
 use Javaabu\Translatable\Testing\InteractsWithLanguages;
 use PHPUnit\Framework\Attributes\Group;
@@ -163,7 +164,7 @@ class TranslatableMetaTest extends TestCase
         $this->assertContains('nullable', $rules['subtitle_dv']);
         $this->assertArrayHasKey('code', $rules);
 
-        $html = (string) $form;
+        $html = $form->toHtml();
         $this->assertStringContainsString('name="subtitle_en"', $html);
         $this->assertStringContainsString('name="subtitle_dv"', $html);
         $this->assertStringContainsString('value="މާލެ"', $html);
@@ -183,6 +184,60 @@ class TranslatableMetaTest extends TestCase
             'subtitle_dv' => 'އައްޑު',
             'summary_dv' => 'ކުރު ތަފްސީލް',
             'code' => 'GAN',
+        ]));
+
+        $post = Post::find($post->id);
+
+        $this->assertSame(['en' => 'Addu', 'dv' => 'އައްޑު'], $post->getMetaTranslations('subtitle'));
+        $this->assertSame(['dv' => 'ކުރު ތަފްސީލް'], $post->getMetaTranslations('summary'));
+        $this->assertSame('GAN', $post->getMeta('code'));
+    }
+
+    #[Test]
+    public function it_tells_which_keys_are_translatable(): void
+    {
+        $this->assertTrue(MetaFields::isTranslatable(Post::class, 'subtitle'));
+        $this->assertTrue(MetaFields::isTranslatable(new Post, 'summary'));
+        $this->assertFalse(MetaFields::isTranslatable(Post::class, 'code'));
+        $this->assertFalse(MetaFields::isTranslatable(Post::class, 'missing'));
+
+        $this->assertTrue((new Post)->isTranslatableField('meta.subtitle'));
+        $this->assertFalse((new Post)->isTranslatableField('meta.code'));
+        $this->assertFalse((new Post)->isTranslatableField('subtitle'));
+        $this->assertFalse((new Post)->isTranslatableField('title'));
+    }
+
+    #[Test]
+    public function nested_in_the_records_own_form_translatable_fields_have_an_input_per_locale(): void
+    {
+        $post = Post::create(['title' => 'Title']);
+        $post->setMeta(['subtitle' => ['en' => 'Malé', 'dv' => 'މާލެ'], 'code' => 'MLE']);
+
+        $form = Form::make()->model(Post::find($post->id))->schema([
+            TextInput::make('title'),
+            MetaFields::nested($post),
+        ]);
+
+        $this->assertSame('Malé', $form->getStateValue('meta.subtitle_en'));
+        $this->assertSame('މާލެ', $form->getStateValue('meta.subtitle_dv'));
+        $this->assertSame('MLE', $form->getStateValue('meta.code'));
+
+        $rules = $form->rules();
+        $this->assertContains('required', $rules['meta.subtitle_en']);
+        $this->assertContains('nullable', $rules['meta.subtitle_dv']);
+        $this->assertArrayNotHasKey('title_dv', $rules);
+
+        $html = $form->toHtml();
+        $this->assertStringContainsString('name="meta[subtitle_en]"', $html);
+        $this->assertStringContainsString('name="meta[subtitle_dv]"', $html);
+        $this->assertStringContainsString('value="މާލެ"', $html);
+
+        $node = collect($form->toArray()['components'][1]['children'] ?? [])->firstWhere('key', 'meta.subtitle');
+        $this->assertSame(['meta[subtitle_en]', 'meta[subtitle_dv]'], array_column($node['translatable']['inputs'], 'name'));
+
+        $form->save($form->validate([
+            'title' => 'Title',
+            'meta' => ['subtitle_en' => 'Addu', 'subtitle_dv' => 'އައްޑު', 'summary_dv' => 'ކުރު ތަފްސީލް', 'code' => 'GAN'],
         ]));
 
         $post = Post::find($post->id);

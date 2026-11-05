@@ -12,6 +12,8 @@ Initial development of v1.0:
 - Meta types: string, text, integer, float, boolean, date, datetime, time and json, plus custom types (`MetaType`, `MetaFields::type()`, `config('meta.types')`).
 - Query scopes: `whereMeta`, `orWhereMeta`, `whereMetaIn`, `orWhereMetaIn`, `whereMetaNotIn`, `orWhereMetaNotIn`, `whereHasMeta`, `orWhereHasMeta`, `whereDoesntHaveMeta`, `orWhereDoesntHaveMeta`, `orderByMeta`, `orderByMetaDesc` and `withMeta`. They're index-only subqueries, and EXPLAIN tests run on SQLite and MySQL.
 - `MetaForm`: a stencil form of a record's meta fields, for Blade and Inertia React, with field and type validation and saving.
+- Meta fields in the record's own stencil form: `MetaFields::nested()` (a `Group` with `statePath('meta')`) and `MetaFields::formFields()`. Translatable meta fields get per-locale inputs there through stencil's `ResolvesTranslatableFields`, which `HasMeta::isTranslatableField()` implements. `MetaFields::isTranslatable()` tells whether a key is translatable.
+- `TextInput::integer()` fields are stored as integers without `->metaType('integer')` (stencil's `isInteger()`), and translatable fields are detected with stencil's `isDeclaredTranslatable()`. Needs stencil from Javaabu/stencil#16. Rendering a form now uses `toHtml()` or `{{ $form }}`, since stencil forms aren't `Stringable` any more.
 - Optional javaabu/translatable support: per-locale values with fallback, one input per locale in meta forms, queries in any locale and sorting in the current one.
 - English and Dhivehi strings, and Thaana inputs.
 - Docs, `llms.txt`, and a Laravel Boost guideline and skill.

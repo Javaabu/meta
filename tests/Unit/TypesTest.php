@@ -53,6 +53,8 @@ class TypesTest extends TestCase
             'text input' => [fn () => TextInput::make('a'), 'string'],
             'email input' => [fn () => TextInput::make('a')->email(), 'string'],
             'numeric input' => [fn () => TextInput::make('a')->numeric(), 'float'],
+            'integer input' => [fn () => TextInput::make('a')->integer(), 'integer'],
+            'integer input stored as float' => [fn () => TextInput::make('a')->integer()->metaType('float'), 'float'],
             'textarea' => [fn () => Textarea::make('a'), 'text'],
             'wysiwyg' => [fn () => Wysiwyg::make('a'), 'text'],
             'checkbox' => [fn () => Checkbox::make('a'), 'boolean'],

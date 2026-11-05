@@ -52,12 +52,7 @@ class IntegerType extends MetaType
 
     public function matches(Field $field): bool
     {
-        if (! $field instanceof TextInput) {
-            return false;
-        }
-
-        // TextInput::isInteger() is requested in Javaabu/stencil#16.
-        return method_exists($field, 'isInteger') && $field->isInteger();
+        return $field instanceof TextInput && $field->isInteger();
     }
 
     public function accepts(mixed $value): bool

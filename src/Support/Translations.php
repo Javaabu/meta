@@ -24,6 +24,14 @@ class Translations
     }
 
     /**
+     * Whether javaabu/translatable is enabled and translates the model's field.
+     */
+    public static function supports(object|string $model, string $field): bool
+    {
+        return static::enabled() && Translatable::supports($model, $field);
+    }
+
+    /**
      * The locale values are read and written in.
      */
     public static function currentLocale(): string

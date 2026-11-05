@@ -23,6 +23,7 @@ sidebar_position: 7
 | `savePendingMeta(): void` | Called when the record is saved |
 | `metaFields(): array`, `metaField(string $key): ?MetaField` | The record's definitions |
 | `metaGroup(): ?string` | Override to return the record's group |
+| `isTranslatableField(string $state_path): bool` | For stencil's `ResolvesTranslatableFields`: `meta.*` paths from the definitions, others from javaabu/translatable |
 | `getMetaTable(): string` | `$meta_table`, or `config('meta.table')` |
 
 | Scope | |
@@ -46,14 +47,17 @@ sidebar_position: 7
 | `keys(Model\|string $model, ?string $group = null): array` | |
 | `groups(string $model): array` | |
 | `queryField(string $model, string $key): ?MetaField` | The field queries use: the model's or any group's |
+| `isTranslatable(Model\|string $model, string $key, ?string $group = null): bool` | Whether a key has a value per locale. A model class without a group looks in every group |
 | `form(Model $record, ?string $group = null): MetaForm` | |
+| `formFields(Model\|string $model, ?string $group = null): array<int, Field>` | New copies of the stencil fields |
+| `nested(Model\|string $model, ?string $group = null): Group` | The fields in a stencil `Group` with `statePath('meta')`, for the record's own form |
 | `type(MetaType\|string $type)` | Register a type (an instance or a class name) |
 | `getType(string $name): MetaType`, `hasType(string $name): bool`, `types(): array` | |
 | `fieldType(Field $field): MetaType` | The type of a stencil field: `->metaType()`, or inferred |
 | `typeForValue(mixed $value): MetaType` | The type of a value of an undefined key |
 | `setFieldType(Field $field, string $type): void` | What `->metaType()` calls |
 
-`Field::metaType(string $type)` is a macro on stencil fields.
+`MetaFields::STATE_PATH` is `'meta'`. `Field::metaType(string $type)` is a macro on stencil fields.
 
 # `Javaabu\Meta\Definitions\MetaField`
 
