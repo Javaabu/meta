@@ -1,0 +1,11 @@
+{
+    "position": 1.3,
+    "label": "Basic Usage",
+    "collapsible": true,
+    "collapsed": false,
+    "link": {
+        "type": "generated-index",
+        "slug": "/meta/_categories/basic-usage",
+        "description": "Adding meta to a model, defining meta fields, reading and writing values, querying, and meta forms in Blade or React."
+    }
+}

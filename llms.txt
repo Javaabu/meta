@@ -1,0 +1,53 @@
+# javaabu/meta
+
+> Meta fields for Eloquent models. Fields are defined once per model (and per group, such as a post type) with javaabu/stencil fields, which give the storage type, validation and the form input. Values are stored in typed, indexed columns of a shared meta table. Models query them with whereMeta, whereMetaIn and orderByMeta, eager load them without N+1, and edit them in a MetaForm that renders with stencil in Blade or Inertia React. Custom types can be added, and javaabu/translatable (optional) adds a value per language.
+
+Paths are relative to this file. In a project, that's vendor/javaabu/meta/.
+
+## Rules
+
+- **Model:** add `Javaabu\Meta\Concerns\HasMeta`. Override `metaGroup()` (return `$this->type`) when records of one model have different fields.
+- **Definitions:** define fields in a service provider's `boot()` with `MetaFields::for(Post::class, [TextInput::make('subtitle'), Checkbox::make('featured')], group: null)`, or `'views' => 'integer'` for a key with only a type. Don't add columns or JSON attributes for these fields.
+- **Types:**
+  - The meta type is inferred from the stencil field: Checkbox → boolean, DatePicker → date, DateTimePicker → datetime, TimePicker → time, numeric TextInput → float, Textarea/Wysiwyg → text, multiple Select/CheckboxList → json, anything else → string (255 characters at most).
+  - Add `->metaType('integer')` to integer inputs.
+  - Relationship and media fields can't be meta.
+- **Reading:** `$post->getMeta('key', $default)`. Eager load lists with `Post::with('meta')` or `withMeta(['key'])`; never read meta in a loop without it.
+- **Writing:** `$post->setMeta('key', $value)` or `setMeta([...])`. It writes straight away for saved records (no `save()` needed) and on save for new ones. `null` removes a value. Use `removeMeta()` and `syncMeta()` for the rest.
+- **Request data:** goes through `Post::create([..., 'meta' => [...]])`, `$post->fillMeta($validated)` or `MetaForm::for($post)->save()`. These only take defined keys. Don't pass request input to `setMeta()`.
+- **Querying:**
+  - `whereMeta($key, $op, $value)`, `orWhereMeta`, `whereMetaIn`, `whereMetaNotIn`, `whereHasMeta`, `whereDoesntHaveMeta`, `orderByMeta($key, 'desc')`.
+  - Never join or query the meta table by hand.
+  - `!=` and `NotIn` match only records that have the key.
+  - JSON values match with "contains".
+  - Undefined keys need their type to sort: `orderByMeta('position', 'asc', 'integer')`.
+- **Forms:** `MetaForm::for($post)->action(...)` is a stencil form: `{{ $form }}` in Blade, or an Inertia prop for `<StencilForm schema={form} />`. Use `->embedded()` inside the record's own form, and keep meta keys distinct from the record's input names.
+- **Translatable:**
+  - `->translatable()` on a field gives one value and one input per language (`subtitle_en`, `subtitle_dv`) when javaabu/translatable is enabled. Otherwise it's a plain field.
+  - Read with `getMeta($key, locale: 'dv')` or `getMetaTranslations($key)`. Write a locale map with `setMeta($key, ['en' => …, 'dv' => …])`.
+- **Custom types:** extend `Javaabu\Meta\Types\MetaType` (`name`, `column`, `serialize`, `unserialize`, `field`, `matches`, `accepts`, `rules`, optional `where`/`whereIn`). Register them with `MetaFields::type()` or `config('meta.types')`.
+- **Performance:** keys that large tables are sorted by on every page belong in real columns. Meta is for the long tail.
+- **Dhivehi:** pass every label and option through `__()`, and add `->thaana()` to text fields for Dhivehi.
+
+## Docs
+
+- [Introduction](docs/intro.md): what the package does
+- [Requirements](docs/requirements.md): PHP, Laravel, databases, stencil, translatable
+- [Installation & Setup](docs/installation-and-setup.md): installing, the migration, UUID keys, publishing
+- [AI assistants](docs/ai-assistants.md): Laravel Boost and these docs
+- [Adding meta to a model](docs/basic-usage/has-meta.md): HasMeta, mass assignment, deleting, the meta relation, a table per model
+- [Defining meta fields](docs/basic-usage/defining-fields.md): MetaFields::for, types and inference, ->metaType(), fields by type, groups, closures, reading definitions
+- [Reading and writing](docs/basic-usage/reading-and-writing.md): getMeta, eager loading, setMeta, removing, mass assignment, translations
+- [Querying](docs/basic-usage/querying.md): every scope, JSON values, undefined keys, sorting, eager loading, performance
+- [Meta forms](docs/basic-usage/forms.md): MetaForm in Blade and Inertia React, embedding in the record's form, validating and saving
+- [Custom meta types](docs/advanced-usage/custom-types.md): a type class, columns, queries, matching order, replacing built-in types
+- [Translatable meta](docs/advanced-usage/translatable.md): values per language, fallback, forms, queries, without translatable
+- [Storage and performance](docs/advanced-usage/storage-and-performance.md): the table, indexes, benchmarks, the weak spot, a table per model
+- [Configuration](docs/advanced-usage/configuration.md): every config option and the strings
+- [Dhivehi and RTL](docs/advanced-usage/dhivehi-and-rtl.md): strings, Thaana, values, strings to review
+- [For package authors](docs/advanced-usage/for-package-authors.md): the contract for packages such as post-types
+- [API reference](docs/advanced-usage/api-reference.md): every class and method
+- [Questions and Security](docs/questions-and-security.md): getting help and reporting security issues
+- [Changelog](docs/changelog.md): where changes are listed
+- [About Us](docs/about-us.md): Javaabu
+- [Contributing to the docs](docs/contributing-to-docs.md): how the docs are built

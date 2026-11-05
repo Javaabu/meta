@@ -1,0 +1,5 @@
+{
+    "name": "Meta",
+    "description": "Meta fields for Eloquent models: defined with javaabu/stencil, stored in typed, indexed columns, queried with whereMeta and orderByMeta, extensible with custom types and optionally translatable",
+    "version": "1"
+}

@@ -1,0 +1,11 @@
+{
+    "position": 1.32,
+    "label": "Advanced Usage",
+    "collapsible": true,
+    "collapsed": true,
+    "link": {
+        "type": "generated-index",
+        "slug": "/meta/_categories/advanced-usage",
+        "description": "Custom meta types, translatable meta, storage and performance, configuration, Dhivehi, package authors and the full API."
+    }
+}
