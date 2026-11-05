@@ -60,9 +60,13 @@ class MetaFields
     /** @var WeakMap<Field, string> */
     protected WeakMap $field_types;
 
+    /** @var WeakMap<Field, bool> */
+    protected WeakMap $translatable_fields;
+
     public function __construct()
     {
         $this->field_types = new WeakMap;
+        $this->translatable_fields = new WeakMap;
 
         foreach (static::BUILT_IN_TYPES as $type) {
             $this->type($type);
@@ -290,9 +294,13 @@ class MetaFields
             return false;
         }
 
+        if (isset($this->translatable_fields[$field])) {
+            return $this->translatable_fields[$field];
+        }
+
         $form = Form::make()->model(TranslatableMetaRecord::probe([$field->getName()]))->schema([clone $field]);
 
-        return $form->getField($field->getName())?->isTranslatable() ?? false;
+        return $this->translatable_fields[$field] = $form->getField($field->getName())?->isTranslatable() ?? false;
     }
 
     /**
