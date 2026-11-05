@@ -2,22 +2,37 @@
 
 namespace Javaabu\Meta\Tests;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Javaabu\Forms\FormsServiceProvider;
 use Javaabu\Manifest\ManifestServiceProvider;
 use Javaabu\Meta\MetaServiceProvider;
 use Javaabu\Stencil\StencilServiceProvider;
+use Javaabu\Translatable\TranslatableServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+    use RefreshDatabase;
+
+    protected function defineDatabaseMigrations(): void
+    {
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
+    }
+
     protected function getPackageProviders($app): array
     {
-        return [
+        $providers = [
             ManifestServiceProvider::class,
             FormsServiceProvider::class,
             StencilServiceProvider::class,
-            MetaServiceProvider::class,
         ];
+
+        // Optional: the CI leg without javaabu/translatable removes it.
+        if (class_exists(TranslatableServiceProvider::class)) {
+            $providers[] = TranslatableServiceProvider::class;
+        }
+
+        return [...$providers, MetaServiceProvider::class];
     }
 
     protected function defineEnvironment($app): void
