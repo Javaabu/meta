@@ -1,6 +1,6 @@
 <?php
 
-namespace Javaabu\Meta\Tests\Feature;
+namespace Javaabu\Meta\Tests\Translatable;
 
 use Javaabu\Meta\Facades\MetaFields;
 use Javaabu\Meta\Forms\MetaForm;

@@ -158,7 +158,23 @@ class MetaFormTest extends TestCase
         $this->assertStringContainsString('name="featured"', $html);
         $this->assertStringContainsString('name="tags[]"', $html);
         $this->assertStringContainsString('ސަބްޓައިޓަލް', $html);
-        $this->assertStringContainsString('ސޭވްކުރޭ', trans('meta::strings.save', [], 'dv'));
+    }
+
+    #[Test]
+    public function it_speaks_dhivehi_and_keeps_thaana_inputs(): void
+    {
+        app()->setLocale('dv');
+
+        $form = MetaForm::for(new Post)->action('/posts/1/meta');
+        $html = (string) $form;
+
+        $this->assertSame('ސޭވް ކުރައްވާ', $form->getSubmitLabel());
+        $this->assertStringContainsString('ސޭވް ކުރައްވާ', $html);
+        $this->assertTrue($form->toArray()['components'][0]['props']['thaana']);
+
+        app()->setLocale('en');
+
+        $this->assertSame('Save', MetaForm::for(new Post)->getSubmitLabel());
     }
 
     #[Test]

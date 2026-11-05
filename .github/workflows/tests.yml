@@ -145,7 +145,7 @@ jobs:
           composer update --prefer-dist --no-interaction
 
       - name: Run tests
-        run: vendor/bin/phpunit --exclude-group translatable
+        run: vendor/bin/phpunit --testsuite Unit,Feature
 
   dependencies:
     runs-on: ubuntu-latest

@@ -14,6 +14,10 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <!-- Needs javaabu/translatable: the CI leg without it runs only Unit and Feature. -->
+        <testsuite name="Translatable">
+            <directory>tests/Translatable</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
