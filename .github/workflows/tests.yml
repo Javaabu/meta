@@ -44,6 +44,19 @@ jobs:
           extensions: mbstring, pdo, sqlite, pdo_sqlite, zip
           coverage: ${{ env.COVERAGE == 'true' && 'xdebug' || 'none' }}
 
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('composer.json', 'composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-${{ github.job }}-${{ strategy.job-index }}-
+            composer-${{ runner.os }}-${{ github.job }}-
+
       - name: Install dependencies
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
@@ -115,6 +128,19 @@ jobs:
           extensions: mbstring, pdo, pdo_mysql, zip
           coverage: none
 
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('composer.json', 'composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-${{ github.job }}-${{ strategy.job-index }}-
+            composer-${{ runner.os }}-${{ github.job }}-
+
       - name: Install dependencies
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
@@ -139,6 +165,19 @@ jobs:
           extensions: mbstring, pdo, sqlite, pdo_sqlite, zip
           coverage: none
 
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('composer.json', 'composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-${{ github.job }}-${{ strategy.job-index }}-
+            composer-${{ runner.os }}-${{ github.job }}-
+
       - name: Install dependencies without translatable
         run: |
           composer remove --dev javaabu/translatable --no-update --no-interaction
@@ -160,6 +199,19 @@ jobs:
         with:
           php-version: "8.4"
           coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('composer.json', 'composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-${{ github.job }}-${{ strategy.job-index }}-
+            composer-${{ runner.os }}-${{ github.job }}-
 
       - name: Install dependencies
         run: composer update --prefer-dist --no-interaction --no-dev
@@ -189,6 +241,19 @@ jobs:
         with:
           php-version: "8.4"
           coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('composer.json', 'composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-${{ github.job }}-${{ strategy.job-index }}-
+            composer-${{ runner.os }}-${{ github.job }}-
 
       - name: Install dependencies
         run: composer update --prefer-dist --no-interaction
