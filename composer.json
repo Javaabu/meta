@@ -73,19 +73,23 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/Javaabu/forms"
+      "url": "https://github.com/Javaabu/forms",
+      "no-api": true
     },
     {
       "type": "vcs",
-      "url": "https://github.com/Javaabu/manifest"
+      "url": "https://github.com/Javaabu/manifest",
+      "no-api": true
     },
     {
       "type": "vcs",
-      "url": "https://github.com/Javaabu/stencil"
+      "url": "https://github.com/Javaabu/stencil",
+      "no-api": true
     },
     {
       "type": "vcs",
-      "url": "https://github.com/n4ff4h/translatable"
+      "url": "https://github.com/n4ff4h/translatable",
+      "no-api": true
     }
   ],
   "config": {
