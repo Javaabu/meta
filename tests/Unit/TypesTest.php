@@ -2,7 +2,9 @@
 
 namespace Javaabu\Meta\Tests\Unit;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Javaabu\Meta\Enums\MetaColumn;
 use Javaabu\Meta\Exceptions\MetaException;
 use Javaabu\Meta\Facades\MetaFields;
@@ -130,6 +132,26 @@ class TypesTest extends TestCase
         $this->assertSame('ލިޔުން', MetaFields::getType('text')->serialize('ލިޔުން'));
         $this->assertSame('15:30:00', MetaFields::getType('time')->unserialize('15:30:00'));
         $this->assertTrue(MetaFields::getType('boolean')->unserialize('1'));
+    }
+
+    #[Test]
+    public function date_types_work_with_immutable_dates(): void
+    {
+        Date::use(CarbonImmutable::class);
+
+        try {
+            $this->assertSame('2026-11-05 00:00:00', MetaFields::getType('date')->serialize('2026-11-05 15:30'));
+            $this->assertSame('2026-11-05 15:30:00', MetaFields::getType('datetime')->serialize('2026-11-05 15:30'));
+            $this->assertSame('2026-11-05 15:30:00', MetaFields::getType('datetime')->serialize(CarbonImmutable::parse('2026-11-05 15:30')));
+            $this->assertInstanceOf(CarbonImmutable::class, MetaFields::getType('date')->unserialize('2026-11-05 00:00:00'));
+
+            $post = Post::create(['title' => 'ހަފްލާ']);
+            $post->setMeta('held_on', CarbonImmutable::parse('2026-11-05'));
+
+            $this->assertSame('2026-11-05', $post->fresh()->getMeta('held_on')->toDateString());
+        } finally {
+            Date::useDefault();
+        }
     }
 
     /**

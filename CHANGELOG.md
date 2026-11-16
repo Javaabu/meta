@@ -17,3 +17,4 @@ Initial development of v1.0:
 - Optional javaabu/translatable support: per-locale values with fallback, one input per locale in meta forms, queries in any locale and sorting in the current one.
 - English and Dhivehi strings, and Thaana inputs.
 - Docs, `llms.txt`, and a Laravel Boost guideline and skill.
+- Date and datetime meta work in apps with immutable dates (`Date::use(CarbonImmutable::class)`), which Laravel's starter kits turn on. Storing a date used to fail with "can't be stored as [date]".

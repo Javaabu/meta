@@ -2,8 +2,8 @@
 
 namespace Javaabu\Meta\Types;
 
+use Carbon\CarbonInterface;
 use DateTimeInterface;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Javaabu\Meta\Enums\MetaColumn;
 use Javaabu\Meta\Exceptions\MetaException;
@@ -58,7 +58,10 @@ class DateTimeType extends MetaType
         return ['date'];
     }
 
-    protected function toDate(mixed $value, string $key): Carbon
+    /**
+     * Whichever Carbon class the app uses: Date::use(CarbonImmutable::class) makes it immutable
+     */
+    protected function toDate(mixed $value, string $key): CarbonInterface
     {
         if ($value instanceof DateTimeInterface) {
             return Date::instance($value);
