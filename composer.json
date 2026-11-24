@@ -28,7 +28,7 @@
     "illuminate/database": "^12.0 || ^13.0",
     "illuminate/support": "^12.0 || ^13.0",
     "illuminate/validation": "^12.0 || ^13.0",
-    "javaabu/stencil": "^1.0@dev"
+    "javaabu/stencil": "^1.0@alpha"
   },
   "require-dev": {
     "javaabu/boost-javaabu-guidelines": "^1.4",
@@ -71,21 +71,6 @@
     }
   },
   "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/Javaabu/forms",
-      "no-api": true
-    },
-    {
-      "type": "vcs",
-      "url": "https://github.com/Javaabu/manifest",
-      "no-api": true
-    },
-    {
-      "type": "vcs",
-      "url": "https://github.com/Javaabu/stencil",
-      "no-api": true
-    },
     {
       "type": "vcs",
       "url": "https://github.com/n4ff4h/translatable",
